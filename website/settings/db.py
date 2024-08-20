@@ -18,16 +18,16 @@ def get_dbconfig():
     config = ConfigParser()  
     match OS:
         case 'Linux':
-            print("Right OS")
+            
             config.read(os.path.dirname(os.path.abspath('conf.ini'))+'/website/settings/conf.ini')
         case 'Windows':
-            print("Bill is Proud of you")
+            
             config.read(os.path.dirname(os.path.abspath('conf.ini'))+'\\website\\settings\\conf.ini')
         case "Darwin":
             raise InvalidOS("Mac OS Is not Acceptable")
         case _:
             raise InvalidOS("Unknow OS")
-    print(config.sections())
+    
     return config
 
 def get_engine():
