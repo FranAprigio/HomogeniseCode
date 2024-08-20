@@ -1,5 +1,7 @@
 import os
 import psycopg2
+import platform
+
 
 from psycopg2 import sql
 from configparser import ConfigParser
@@ -8,15 +10,29 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 
+def get_OS():
+    return platform.system()
+
 def get_dbconfig():
-    config = ConfigParser()    
-    config.read(os.path.dirname(os.path.abspath('conf.ini'))+'\\website\\settings\\conf.ini')
+    OS = get_OS()
+    config = ConfigParser()  
+    match OS:
+        case 'Linux':
+            print("Right OS")
+            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'/website/settings/conf.ini')
+        case 'Windows':
+            print("Bill is Proud of you")
+            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'\\website\\settings\\conf.ini')
+        case "Darwin":
+            raise InvalidOS("Mac OS Is not Acceptable")
+        case _:
+            raise InvalidOS("Unknow OS")
+    print(config.sections())
     return config
 
 def get_engine():
-   
-    config = get_dbconfig()      
 
+    config = get_dbconfig()      
     url = URL.create(
         drivername="postgresql",
         username=config.get('database', 'pguser'),
@@ -67,3 +83,8 @@ def get_cursor():
     con = psycopg2.connect(dbname=config.get('database', 'pgdb'), user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))         
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return con.cursor()
+
+
+class InvalidOS(Exception):
+    def __init__(self, message) -> None:
+        super().__init__(message)
