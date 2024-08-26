@@ -52,7 +52,21 @@ def get_engine():
     if not exists: 
         set_scriptdb(cur)
         print('Created Database!')
+    else:
+        cur = get_cursor()
+        cqads = [0]  
+        cqads_item = 0          
+        cur.execute("SELECT count(0) FROM app.cqads")    
+        cqads = cur.fetchall()
+        cqads_item = [cqads_items[0] for cqads_items in cqads]
 
+        if int(cqads_item[0]) == 0:
+            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Atlas-Ti', 'XLS')")
+            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'MaxQDA', 'CSV')")
+            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'NVIVO', 'XLS')")
+            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Taguette', 'CSV')")
+            
+        cur.close
     
     engine = create_engine(url)
     return engine
