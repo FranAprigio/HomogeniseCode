@@ -61,6 +61,7 @@ class project(Base):
     project_name = Column(String(200), nullable=False) 
     project_description = Column(String(400), nullable=False) 
     projects_team = relationship('project_team', backref='project')    
+    codes_export = relationship('code_export', backref='project')    
 
 class project_team(Base):
 
@@ -71,6 +72,29 @@ class project_team(Base):
     user_id = Column(Integer(), ForeignKey('user.id'))
     st_user_leader = Column(Integer(), nullable=False)
     __table_args__ = (UniqueConstraint('project_id', 'user_id', name='uk_project_team_project_id_user_id'), )  
+
+
+class cqads(Base):
+
+    __tablename__ = 'cqads'
+
+    cqads_id = Column(Integer(), primary_key=True)    
+    cqads_name = Column(String(200), nullable=False) 
+    code_export_type_file = Column(String(200), nullable=False) 
+
+
+class code_export(Base):
+
+    __tablename__ = 'code_export'
+
+    code_export_id = Column(Integer(), primary_key=True)
+    dt_code_export = Column(DateTime(), default=datetime.now, nullable=False) 
+    cqads_id = Column(Integer(), ForeignKey('cqads.cqads_id'))
+    project_id =  Column(Integer(), ForeignKey('project.project_id'))
+    ontology_file_name = Column(String(200), nullable=False)     
+    code_export_type_file = Column(String(200), nullable=False) 
+    code_export_field = Column(Text, nullable=False) 
+            
     
 engine = db.get_engine()
 Base.metadata.create_all(engine)      
