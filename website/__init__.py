@@ -1,14 +1,21 @@
 from flask import Flask
 from flask_login import LoginManager
-from website.settings import db
+
+from website.settings.db import database_init
 
 def create_app():
     app = Flask(__name__)   
+    app.config.from_object("config")
 
-    engine = db.get_engine()
+    from .settings.db import db
 
     app.config['SECRET_KEY'] = '1234'
-    app.config['SQLALCHEMY_DATABASE_URI'] = engine.url
+    db.init_app(app)
+
+    try:
+        database_init(app)
+    except Exception as e:
+        app.logger.critical(f"Could not connect to postgres: {str(e)}")
 
     from .views import views
     from .auth import auth
@@ -19,7 +26,7 @@ def create_app():
     from . import models
     
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'auth.login' # type: ignore
     login_manager.init_app(app)
 
     @login_manager.user_loader

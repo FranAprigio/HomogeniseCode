@@ -1,4 +1,4 @@
-from website.settings import db
+from .settings.db import db
 from . import models
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,7 +14,7 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        session = db.get_dbsession()
+        session = db.session
         
         usersession = session.query(models.user)
         user = usersession.filter(models.user.email==email).first()

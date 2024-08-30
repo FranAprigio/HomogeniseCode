@@ -1,104 +1,122 @@
-import os
+from urllib.parse import urlparse
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 import psycopg2
-import platform
 
+db = SQLAlchemy()
 
-from psycopg2 import sql
-from configparser import ConfigParser
-from sqlalchemy.orm import sessionmaker
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from sqlalchemy import create_engine
-from sqlalchemy.engine import URL
+def database_init(app):
+    with app.app_context():
 
-def get_OS():
-    return platform.system()
+        engine = db.engine
+        with engine.connect() as connection:
+            query = text("CREATE SCHEMA IF NOT EXISTS app")
+            connection.execute(query)
+            connection.commit()
+        
+        # Cria as tabelas
+        from ..models import Base
+        Base.metadata.create_all(engine)
 
-def get_dbconfig():
-    OS = get_OS()
-    config = ConfigParser()  
-    match OS:
-        case 'Linux':
+# def get_engine():
+
+#     config = get_dbconfig()      
+#     url = URL.create(
+#         drivername="postgresql",
+#         username=config['pguser'],
+#         password=config['pgpasswd'],
+#         host=config['pghost'],
+#         port=config['pgport'],
+#         database=config['pgdb']
+#     )
+    
+#     con = psycopg2.connect(
+#         dbname='postgres', 
+#         user=config['pguser'], 
+#         host=config['pghost'], 
+#         password=config['pgpasswd'],
+#         port=config['pgport']
+#     )
+    
+#     con = psycopg2.connect(dbname='postgres', user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))     
+    
+#     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+
+#     cur = con.cursor()
+
+#     cur.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = '"+config.get('database', 'pgdb')+"'")
+#     exists = cur.fetchone()
+#     if not exists: 
+#         set_scriptdb(cur)
+#         print('Created Database!')
+#     else:
+#         cur = get_cursor()
+#         cqads = [0]  
+#         cqads_item = 0          
+#         cur.execute("SELECT count(0) FROM app.cqads")    
+#         cqads = cur.fetchall()
+#         cqads_item = [cqads_items[0] for cqads_items in cqads]
+
+#         if int(cqads_item[0]) == 0:
+#             cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Atlas-Ti', 'XLS')")
+#             cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'MaxQDA', 'CSV')")
+#             cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'NVIVO', 'XLS')")
+#             cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Taguette', 'CSV')")
             
-            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'/website/settings/conf.ini')
-        case 'Windows':
-            
-            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'\\website\\settings\\conf.ini')
-        case "Darwin":
-            raise InvalidOS("Mac OS Is not Acceptable")
-        case _:
-            raise InvalidOS("Unknow OS")
+#         cur.close
     
-    return config
+#     engine = create_engine(url)
+#     return engine
 
-def get_engine():
-
-    config = get_dbconfig()      
-    url = URL.create(
-        drivername="postgresql",
-        username=config.get('database', 'pguser'),
-        password=config.get('database', 'pgpasswd'),
-        host=config.get('database', 'pghost'),
-        database=config.get('database', 'pgdb')
-    )
+# def get_dbsession():
     
-    con = psycopg2.connect(dbname='postgres', user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))     
+#     engine = get_engine()
     
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
 
-    cur = con.cursor()
+#     return session
 
-    cur.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = '"+config.get('database', 'pgdb')+"'")
-    exists = cur.fetchone()
-    if not exists: 
-        set_scriptdb(cur)
-        print('Created Database!')
-    else:
-        cur = get_cursor()
-        cqads = [0]  
-        cqads_item = 0          
-        cur.execute("SELECT count(0) FROM app.cqads")    
-        cqads = cur.fetchall()
-        cqads_item = [cqads_items[0] for cqads_items in cqads]
+# def set_scriptdb(cur):
 
-        if int(cqads_item[0]) == 0:
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Atlas-Ti', 'XLS')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'MaxQDA', 'CSV')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'NVIVO', 'XLS')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Taguette', 'CSV')")
-            
-        cur.close
-    
-    engine = create_engine(url)
-    return engine
+#     config = get_dbconfig()
 
-def get_dbsession():
-    
-    engine = get_engine()
-    
-    Session = sessionmaker(bind=engine)
-    session = Session()
+#     cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(config.get('database', 'pgdb'))))
 
-    return session
+#     con = psycopg2.connect(dbname=config.get('database', 'pgdb'), user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))         
+#     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+#     curschema = con.cursor()
 
-def set_scriptdb(cur):
-
-    config = get_dbconfig()
-
-    cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(config.get('database', 'pgdb'))))
-
-    con = psycopg2.connect(dbname=config.get('database', 'pgdb'), user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))         
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    curschema = con.cursor()
-
-    curschema.execute(sql.SQL("CREATE SCHEMA app"))
+#     curschema.execute(sql.SQL("CREATE SCHEMA app"))
     
 def get_cursor():
-    config = get_dbconfig()
-    con = psycopg2.connect(dbname=config.get('database', 'pgdb'), user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))         
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    # Obtém a string de conexão do SQLAlchemy
+    db_uri = db.engine.url
+
+    # Usa urlparse para separar os componentes da URL
+    parsed_uri = urlparse(str(db_uri))
+    
+    config = {
+        'pguser': parsed_uri.username,
+        'pgpasswd': parsed_uri.password,
+        'pghost': parsed_uri.hostname,
+        'pgport': parsed_uri.port,
+        'pgdb': parsed_uri.path[1:]  # Remove a barra inicial do path
+    }
+
+    # Conecta ao banco de dados usando as informações extraídas
+    con = psycopg2.connect(
+        dbname=config['pgdb'], 
+        user=config['pguser'], 
+        host=config['pghost'], 
+        password=config['pgpasswd'],
+        port=config['pgport']
+    )
+    
+    # con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return con.cursor()
 
 
-class InvalidOS(Exception):
-    def __init__(self, message) -> None:
-        super().__init__(message)
+# class InvalidOS(Exception):
+#     def __init__(self, message) -> None:
+#         super().__init__(message)
