@@ -15,6 +15,8 @@ class research_line(Base):
     research_line_id = Column(Integer(), primary_key=True)
     research_line_name = Column(String(100), nullable=False) 
     research_lines = relationship('project', backref='research_line')
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
 
 
 class user_type(Base):
@@ -24,6 +26,8 @@ class user_type(Base):
     user_type_id = Column(Integer(), primary_key=True)
     user_type_name = Column(String(100), nullable=False) 
     user_types = relationship('user', backref='user_type')
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
 
 
 class user(Base, UserMixin):
@@ -36,7 +40,8 @@ class user(Base, UserMixin):
     password = Column(String(150))
     first_name = Column(String(150), nullable=False)
     projects_team = relationship('project_team', backref='user')
-    audit_logs = relationship('audit_log', backref='user')
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
 
 class audit_log(Base):
 
@@ -44,13 +49,11 @@ class audit_log(Base):
 
     auditlog_id = Column(Integer(), primary_key=True)    
     table_name = Column(String(50), nullable=False)  
-    column_table = Column(String(50), nullable=False)  
-    user_id = Column(Integer(), ForeignKey('user.id'))
-    first_name_name = Column(String(50), nullable=False)
+    column_table = Column(String(50), nullable=False)          
     dt_auditlog = Column(DateTime(), default=datetime.now, nullable=False)  
-    action_type = Column(Integer(), nullable=False) 
-    old_data_column = Column(Text, nullable=False)  
-    new_data_column = Column(Text, nullable=False)  
+    action_type = Column(String(50), nullable=False) 
+    old_data_column = Column(Text)  
+    new_data_column = Column(Text)  
 
 class project(Base):
 
@@ -62,6 +65,8 @@ class project(Base):
     project_description = Column(String(400), nullable=False) 
     projects_team = relationship('project_team', backref='project')    
     codes_export = relationship('code_export', backref='project')    
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
 
 class project_team(Base):
 
@@ -71,16 +76,20 @@ class project_team(Base):
     project_id = Column(Integer(), ForeignKey('project.project_id'))
     user_id = Column(Integer(), ForeignKey('user.id'))
     st_user_leader = Column(Integer(), nullable=False)
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
     __table_args__ = (UniqueConstraint('project_id', 'user_id', name='uk_project_team_project_id_user_id'), )  
 
 
-class cqads(Base):
+class caqdas(Base):
 
-    __tablename__ = 'cqads'
+    __tablename__ = 'caqdas'
 
-    cqads_id = Column(Integer(), primary_key=True)    
-    cqads_name = Column(String(200), nullable=False) 
+    caqdas_id = Column(Integer(), primary_key=True)    
+    caqdas_name = Column(String(200), nullable=False) 
     code_export_type_file = Column(String(200), nullable=False) 
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
 
 
 class code_export(Base):
@@ -89,11 +98,13 @@ class code_export(Base):
 
     code_export_id = Column(Integer(), primary_key=True)
     dt_code_export = Column(DateTime(), default=datetime.now, nullable=False) 
-    cqads_id = Column(Integer(), ForeignKey('cqads.cqads_id'))
+    caqdas_id = Column(Integer(), ForeignKey('caqdas.caqdas_id'))
     project_id =  Column(Integer(), ForeignKey('project.project_id'))
     ontology_file_name = Column(String(200), nullable=False)     
     code_export_type_file = Column(String(200), nullable=False) 
     code_export_field = Column(Text, nullable=False) 
+    user_id_log = Column(Integer(), nullable=True)  
+    user_name_log = Column(String(150), nullable=True)
             
     
 engine = db.get_engine()

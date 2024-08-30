@@ -1,0 +1,1 @@
+create trigger tg_user after insert or delete or update on app.user for each row execute procedure app.create_audit_log('true');
