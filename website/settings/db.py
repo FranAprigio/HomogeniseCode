@@ -90,10 +90,8 @@ def database_init(app):
 #     curschema.execute(sql.SQL("CREATE SCHEMA app"))
     
 def get_cursor():
-    # Obtém a string de conexão do SQLAlchemy
     db_uri = db.engine.url
 
-    # Usa urlparse para separar os componentes da URL
     parsed_uri = urlparse(str(db_uri))
     
     config = {
@@ -101,10 +99,10 @@ def get_cursor():
         'pgpasswd': parsed_uri.password,
         'pghost': parsed_uri.hostname,
         'pgport': parsed_uri.port,
-        'pgdb': parsed_uri.path[1:]  # Remove a barra inicial do path
+        'pgdb': parsed_uri.path[1:]  
     }
 
-    # Conecta ao banco de dados usando as informações extraídas
+  
     con = psycopg2.connect(
         dbname=config['pgdb'], 
         user=config['pguser'], 
