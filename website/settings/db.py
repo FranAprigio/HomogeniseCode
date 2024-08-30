@@ -52,22 +52,9 @@ def get_engine():
     if not exists: 
         set_scriptdb(cur)
         print('Created Database!')
-    else:
-        cur = get_cursor()
-        cqads = [0]  
-        cqads_item = 0          
-        cur.execute("SELECT count(0) FROM app.cqads")    
-        cqads = cur.fetchall()
-        cqads_item = [cqads_items[0] for cqads_items in cqads]
 
-        if int(cqads_item[0]) == 0:
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Atlas-Ti', 'XLS')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'MaxQDA', 'CSV')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'NVIVO', 'XLS')")
-            cur.execute("INSERT INTO app.cqads(cqads_id, cqads_name, code_export_type_file) VALUES (nextval('app.cqads_cqads_id_seq'), 'Taguette', 'CSV')")
-            
         cur.close
-    
+
     engine = create_engine(url)
     return engine
 
@@ -98,6 +85,41 @@ def get_cursor():
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return con.cursor()
 
+def set_audit_log():
+
+    cur=get_cursor()
+
+    cur.execute("SELECT 1 FROM information_schema.triggers")
+    exists = cur.fetchone()
+    if not exists: 
+
+        # Open and read the SQL file
+        with open(os.path.dirname(os.path.abspath('trigger_function.sql'))+'/website/settings/trigger_function.sql', 'r') as file:
+            sql_queries = file.read()
+
+        # Split the SQL file content into individual queries
+        #queries = sql_queries.split(';')
+        queries = sql_queries
+        cur.execute(queries)   
+
+        # Iterate over the queries and execute them
+        #for query in queries:
+        #    try:
+        #        if query.strip() != '':
+        #            cur.execute(query)
+        #            cur.commit()
+        #            print("Query executed successfully!")
+        #    except Exception as e:
+        #        print("Error executing query:", str(e))
+
+        # Close the cursor and the database connection 
+
+        # Open and read the SQL file
+        with open(os.path.dirname(os.path.abspath('trigger_table.sql'))+'/website/settings/trigger_table.sql', 'r') as file:
+            sql_queries = file.read()        
+        cur.execute(sql_queries) 
+
+    cur.close
 
 class InvalidOS(Exception):
     def __init__(self, message) -> None:

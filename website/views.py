@@ -2,6 +2,7 @@ import urllib.request
 import shutil
 from flask import Blueprint, redirect, render_template, request, flash, url_for
 from flask_login import login_required, current_user
+from website import models
 from website.settings import db
 from werkzeug.security import generate_password_hash
 
@@ -157,17 +158,19 @@ def usertypedata():
                 return redirect(url_for('views.usertype'))
             
             else:
+                cur.execute("update app.user_type set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where user_type_id = " + user_type_id)
                 cur.execute("delete from app.user_type where user_type_id = " + user_type_id)            
                 flash('Data deleted!', category='success')
                 return redirect(url_for('views.usertype'))
 
-        if request.args.get('type_operation', '') == 'A':            
-            cur.execute("insert into app.user_type (user_type_id, user_type_name) values (nextval('app.user_type_user_type_id_seq'), '" + user_type_name + "')")            
+        if request.args.get('type_operation', '') == 'A': 
+            
+            cur.execute("insert into app.user_type (user_type_id, user_type_name, user_id_log, user_name_log) values (nextval('app.user_type_user_type_id_seq'), '" + user_type_name + "', " + current_user.get_id()  + ", '" + current_user.first_name  + "')")            
             flash('Data inserted!', category='success')
             return redirect(url_for('views.usertype'))
 
         if request.args.get('type_operation', '') == 'U':
-            cur.execute("update app.user_type set user_type_name = '" + user_type_name + "' where user_type_id = " + user_type_id)
+            cur.execute("update app.user_type set user_type_name = '" + user_type_name + "', user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where user_type_id = " + user_type_id)
             flash('Data updated!', category='success')
             return redirect(url_for('views.usertype'))
         
@@ -217,17 +220,18 @@ def researchlinedata():
                 return redirect(url_for('views.researchline'))
             
             else:
+                cur.execute("update app.research_line set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where research_line_id = " + research_line_id)
                 cur.execute("delete from app.research_line where research_line_id = " + research_line_id)            
                 flash('Data deleted!', category='success')
                 return redirect(url_for('views.researchline'))
 
         if request.args.get('type_operation', '') == 'A':            
-            cur.execute("insert into app.research_line (research_line_name) values ('" + research_line_name + "')")            
+            cur.execute("insert into app.research_line (research_line_name, user_id_log, user_name_log) values ('" + research_line_name + "', " + current_user.get_id()  + ", '" + current_user.first_name  + "')")            
             flash('Data inserted!', category='success')
             return redirect(url_for('views.researchline'))
 
         if request.args.get('type_operation', '') == 'U':
-            cur.execute("update app.research_line set research_line_name = '" + research_line_name + "' where research_line_id = " + research_line_id)
+            cur.execute("update app.research_line set research_line_name = '" + research_line_name + "', user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "' where research_line_id = " + research_line_id)
             flash('Data updated!', category='success')
             return redirect(url_for('views.researchline'))
         
@@ -307,17 +311,18 @@ def projectdata():
                     flash('There are project teams using this project!', category='error')
                     return redirect(url_for('views.projectresearch'))
                 else:
+                    cur.execute("update app.project set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where project_id = " + project_id)
                     cur.execute("delete from app.project where project_id = " + project_id)            
                     flash('Data deleted!', category='success')
                     return redirect(url_for('views.projectresearch'))
                 
-            if request.args.get('type_operation', '') == 'A':            
-                cur.execute("insert into app.project (project_id, project_name, project_description, research_line_id) values (nextval('app.project_project_id_seq'), '" + project_name + "', '" + project_description +  "' , " + research_line_id + ")")            
+            if request.args.get('type_operation', '') == 'A':                            
+                cur.execute("insert into app.project (project_id, project_name, project_description, research_line_id, user_id_log, user_name_log) values (nextval('app.project_project_id_seq'), '" + project_name + "', '" + project_description +  "' , " + research_line_id + ", " + current_user.get_id()  + ", '" + current_user.first_name  + "')")            
                 flash('Data inserted!', category='success')
                 return redirect(url_for('views.projectresearch'))
             
             if request.args.get('type_operation', '') == 'U':            
-                cur.execute("update app.project set project_name = '" + project_name + "', project_description = '" + project_description + "' , research_line_id = " + research_line_id + " where project_id = " + project_id)
+                cur.execute("update app.project set project_name = '" + project_name + "', project_description = '" + project_description + "' , research_line_id = " + research_line_id + ", user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "' where project_id = " + project_id)
                 flash('Data updated!', category='success')
                 return redirect(url_for('views.projectresearch'))
             
@@ -358,7 +363,6 @@ def projectdata():
 
         return render_template("projectdata.html", user=current_user, project_id = project_id, project_name = project_name, project_description = project_description, researchline_name = research_line_name[0], researchline_list = data_research_line, type_operation = type_operation)         
 
-
 @views.route('/modifyuserdata', methods= ['GET', 'POST'])
 def modifyuserdata(): 
 
@@ -384,6 +388,7 @@ def modifyuserdata():
                 return redirect(url_for('views.modifyuser'))
             
             else:
+                cur.execute("update app.user set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where id = " + user_id)
                 cur.execute("delete from app.user where id = " + user_id)            
                 flash('Data deleted!', category='success')
                 return redirect(url_for('views.modifyuser'))
@@ -398,9 +403,9 @@ def modifyuserdata():
                 flash('Password must be at least 7 characters.', category='error')
                 return redirect(url_for('views.modifyuser'))
 
-            else:
+            else:                
                 cur.execute("update app.user set first_name = '" + first_name + "', user_type_id = " + user_type_id + ", password = '" + generate_password_hash(
-                password1, method='pbkdf2:sha256') + "'  where id = " + user_id)
+                password1, method='pbkdf2:sha256') + "', user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where id = " + user_id)
                 flash('Data updated!', category='success')
                 return redirect(url_for('views.modifyuser'))
    
@@ -472,6 +477,7 @@ def projectTeamData():
 
         else:
             if request.args.get("type_operation") == 'D':
+                cur.execute("update app.project_team set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where project_team_id = " + project_team_id)
                 cur.execute("delete from app.project_team where project_team_id = " + project_team_id)            
                 flash('Data deleted!', category='success')
                 return redirect(url_for('views.projectteam'))
@@ -483,12 +489,12 @@ def projectTeamData():
                     return redirect(url_for('views.projectteam'))
 
                 else:
-                    cur.execute("INSERT INTO app.project_team(project_team_id, project_id, user_id, st_user_leader)	VALUES (nextval('app.project_team_project_team_id_seq'), " + project_id + ", " + user_id + ", " + st_user_leader + ")")            
+                    cur.execute("INSERT INTO app.project_team(project_team_id, project_id, user_id, st_user_leader, user_id_log, user_name_log)	VALUES (nextval('app.project_team_project_team_id_seq'), " + project_id + ", " + user_id + ", " + st_user_leader + ", " + current_user.get_id()  + ", '" + current_user.first_name  + "')")            
                     flash('Data inserted!', category='success')  
                     return redirect(url_for('views.projectteam'))        
 
             if request.args.get("type_operation") == 'U':              
-                cur.execute("UPDATE app.project_team SET st_user_leader  = " + st_user_leader +  "	where project_team_id = " + project_team_id)            
+                cur.execute("UPDATE app.project_team SET st_user_leader  = " + st_user_leader +  ", user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "' where project_team_id = " + project_team_id)            
                 flash('Data updated!', category='success')
                 return redirect(url_for('views.projectteam'))
 
@@ -576,6 +582,102 @@ def projectTeamData():
                                                      , project_list = data_project
                                                      , user_list = data_user
                                                      , type_operation = type_operation)         
+
+
+@views.route('/caqdas', methods=['GET', 'POST'])
+@login_required
+def caqdas():
+
+    cur=db.get_cursor()
+
+    if request.method == 'POST': 
+        caqdas_search = request.form.get('caqdas_search') #Gets the note from the HTML 
+        if len(caqdas_search) < 1:            
+            return redirect(url_for('views.caqdas'))
+        else:
+            cur.execute("select caqdas.caqdas_id " +
+                    "     , caqdas.caqdas_name " +
+                    "     , caqdas.code_export_type_file " +                    
+                    "from app.caqdas caqdas " +                    
+                    "where upper(caqdas.caqdas_name) like upper('%" + request.form.get("caqdas_search") + "%')" +
+                    " order by caqdas.caqdas_name asc")
+            data = cur.fetchall()
+            cur.close
+            return render_template("caqdas.html", output_data = data, user=current_user)        
+    else:    
+        cur.execute("select caqdas.caqdas_id " +
+                    "     , caqdas.caqdas_name " +
+                    "     , caqdas.code_export_type_file " +                    
+                    "from app.caqdas caqdas " +                                        
+                    " order by caqdas.caqdas_name asc")
+        
+        data = cur.fetchall()
+        cur.close
+        return render_template("caqdas.html", output_data = data, user=current_user)
+
+@views.route('/caqdasdata', methods= ['GET', 'POST'])
+def caqdasdata(): 
+
+    if request.method == 'POST':   
+
+        cur=db.get_cursor()
+
+        caqdas_id = request.form.get("caqdas_id")
+        caqdas_name = request.form.get("caqdas_name")
+        code_export_type_file = request.form.get("code_export_type_file")
+
+        if request.args.get('type_operation', '') == 'D':
+            code_export_caqdas = [0]  
+            code_export_caqdas_item = 0          
+            cur.execute("SELECT count(0) FROM app.code_export where caqdas_id = " + caqdas_id)    
+            code_export_caqdas = cur.fetchall()
+            code_export_caqdas_item = [code_export_caqdas_item[0] for code_export_caqdas_item in code_export_caqdas]
+
+            if int(code_export_caqdas_item[0]) > 0:  
+                flash('There are codes exported using this CAQDAS!', category='error')
+                return redirect(url_for('views.caqdas'))
+            
+            else:
+                cur.execute("update app.caqdas set user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "'  where caqdas_id = " + caqdas_id)
+                cur.execute("delete from app.caqdas where  caqdas_id = " + caqdas_id)            
+                flash('Data deleted!', category='success')
+                return redirect(url_for('views.caqdas'))
+
+        if request.args.get('type_operation', '') == 'A':            
+            cur.execute("insert into app.caqdas (caqdas_name, code_export_type_file, user_id_log, user_name_log) values ('" + caqdas_name + "', '" + code_export_type_file + "', " + current_user.get_id()  + ", '" + current_user.first_name  + "')")            
+            flash('Data inserted!', category='success')
+            return redirect(url_for('views.caqdas'))
+
+        if request.args.get('type_operation', '') == 'U':
+            cur.execute("update app.caqdas set caqdas_name = '" + caqdas_name + "', user_id_log = " + current_user.get_id()  + ", user_name_log = '" + current_user.first_name  + "' where caqdas_id = " + caqdas_id)
+            flash('Data updated!', category='success')
+            return redirect(url_for('views.caqdas'))
+        
+        cur.execute("SELECT * FROM app.caqdas order by caqdas_name")
+        data = cur.fetchall()
+        cur.close
+        return render_template("caqdas.html", output_data = data, user=current_user)        
+
+    if request.method == 'GET':              
+
+        caqdas_id = request.args.get("caqdas_id")
+        caqdas_name = request.args.get("caqdas_name")
+        code_export_type_file = request.args.get("code_export_type_file")
+
+        if request.args.get('type_operation', '') == 'D':
+            type_operation = 'Delete'
+        elif request.args.get('type_operation', '') == 'U':
+            type_operation = 'Update'
+        else:
+            type_operation = 'Add'
+
+        cur=db.get_cursor()
+        cur.execute("select caqdas_id, caqdas_name from app.caqdas order by caqdas_name")
+        data_caqdas_list = cur.fetchall()            
+
+        cur.close
+
+        return render_template("caqdasdata.html", user=current_user, caqdas_id = caqdas_id, caqdas_name = caqdas_name, code_export_type_file = code_export_type_file,  data_caqdas = data_caqdas_list, type_operation = type_operation)         
 
 
 @views.route('/uploadonto', methods=['POST'])
