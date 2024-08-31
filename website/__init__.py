@@ -6,6 +6,7 @@ from website.settings.db import database_init
 def create_app():
     app = Flask(__name__)   
     app.config.from_object("config")
+    
 
     from .settings.db import db
 
@@ -32,7 +33,7 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
 
-        session = db.get_dbsession()
+        session = db.session
         usersession = session.query(models.user)
 
         return usersession.get(int(id))

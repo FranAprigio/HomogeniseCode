@@ -52,7 +52,9 @@ def sign_up():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
-        session = db.get_dbsession()
+        print("email", email)
+
+        session = db.session
         
         usersession = session.query(models.user)
         user = usersession.filter(models.user.email==email).first()
