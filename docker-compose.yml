@@ -16,16 +16,15 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: homogenise
     ports:
-      - "5434:5432"
+      - "5432:5434"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - db_network
 
 networks:
-  db_network:
-    external:
-      name: db
+  db_network:    
+      name: db      
 
 volumes:
   postgres_data:
