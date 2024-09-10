@@ -22,16 +22,9 @@ def get_dbconfig():
 
 def get_engine():
 
-    config = get_dbconfig()      
-    url = URL.create(
-        drivername="postgresql",
-        username=config.get('database', 'pguser'),
-        password=config.get('database', 'pgpasswd'),
-        host=config.get('database', 'pghost'),
-        database=config.get('database', 'pgdb')
-    )
+    config = get_dbconfig()          
     
-    con = psycopg2.connect(dbname='postgres', user=config.get('database', 'pguser'), host=config.get('database', 'pghost'), password=config.get('database', 'pgpasswd'))     
+    con = psycopg2.connect(database='postgres', user='postgres', password='1234', host='localhost', port='5434')     
     
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
