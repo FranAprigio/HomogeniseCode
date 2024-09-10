@@ -1,16 +1,22 @@
-FROM python:3.9-slim
+# Usar a imagem base oficial do Python
+FROM python:3.10-slim
 
-WORKDIR /app
+# Definir o diretório de trabalho dentro do contêiner
+WORKDIR /homogenise
 
-COPY . .
+# Copiar o arquivo de dependências para dentro do contêiner
+COPY requirements.txt .
 
+# Instalar dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python3 -m pip install --upgrade pip && \
-    pip install --upgrade pip
+# Copiar o código da aplicação para dentro do contêiner
+COPY . .
 
-RUN pip install gunicorn
+# Definir as variáveis de ambiente (opcional)
+ENV FLASK_APP=homogenise
+ENV FLASK_RUN_HOST=0.0.0.0
 
-EXPOSE 5000
+# Comando para rodar o Flask
+CMD ["flask", "run"]
 
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "3", "--timeout", "120", "main:app"]
