@@ -9,14 +9,13 @@ COPY requirements.txt .
 
 # Instalar dependências
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install python-dotenv
 
 # Copiar o código da aplicação para dentro do contêiner
 COPY . .
 
-# Definir as variáveis de ambiente (opcional)
-ENV FLASK_APP=homogenise
-ENV FLASK_RUN_HOST=0.0.0.0
+RUN pip install gunicorn
 
-# Comando para rodar o Flask
-CMD ["flask", "run"]
+EXPOSE 5000
 
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "3", "--timeout", "120", "main:app"]
