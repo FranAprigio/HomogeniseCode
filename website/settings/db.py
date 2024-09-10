@@ -15,18 +15,8 @@ def get_OS():
 
 def get_dbconfig():
     OS = get_OS()
-    config = ConfigParser()  
-    match OS:
-        case 'Linux':
-            
-            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'/website/settings/conf.ini')
-        case 'Windows':
-            
-            config.read(os.path.dirname(os.path.abspath('conf.ini'))+'\\website\\settings\\conf.ini')
-        case "Darwin":
-            raise InvalidOS("Mac OS Is not Acceptable")
-        case _:
-            raise InvalidOS("Unknow OS")
+    config = ConfigParser()      
+    config.read(os.path.dirname(os.path.abspath('conf.ini'))+'/website/settings/conf.ini')    
     
     return config
 

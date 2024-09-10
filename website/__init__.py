@@ -11,7 +11,8 @@ def create_app():
 
     app.config['SECRET_KEY'] = '1234'    
     app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:5434/{os.getenv('POSTGRES_DB')}"
-db = SQLAlchemy(app)
+    
+    db = SQLAlchemy(app)
 
     from .views import views
     from .auth import auth
