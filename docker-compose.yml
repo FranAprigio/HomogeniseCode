@@ -24,7 +24,8 @@ services:
 
 networks:
   db_network:    
-      name: db      
+    external: true  
+    name: db  
 
 volumes:
   postgres_data:
