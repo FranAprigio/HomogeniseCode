@@ -3,7 +3,6 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Text, Uniq
 from sqlalchemy.orm import declarative_base
 from datetime import datetime
 from sqlalchemy.orm import relationship
-from website.settings import db
 
 Base = declarative_base()
 Base.metadata.schema = 'app'
@@ -107,5 +106,3 @@ class code_export(Base):
     user_name_log = Column(String(150), nullable=True)
             
     
-engine = db.get_engine()
-Base.metadata.create_all(engine)      
