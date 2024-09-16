@@ -2,7 +2,6 @@ from urllib.parse import urlparse
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import psycopg2
-import os
 
 db = SQLAlchemy()
 
@@ -115,41 +114,41 @@ def get_cursor():
     # con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return con.cursor()
 
-def set_audit_log():
+# def set_audit_log():
 
-    cur=get_cursor()
+#     cur=get_cursor()
 
-    cur.execute("SELECT 1 FROM information_schema.triggers")
-    exists = cur.fetchone()
-    if not exists: 
+#     cur.execute("SELECT 1 FROM information_schema.triggers")
+#     exists = cur.fetchone()
+#     if not exists: 
 
-        # Open and read the SQL file
-        with open(os.path.dirname(os.path.abspath('trigger_function.sql'))+'/website/settings/trigger_function.sql', 'r') as file:
-            sql_queries = file.read()
+#         # Open and read the SQL file
+#         with open(os.path.dirname(os.path.abspath('trigger_function.sql'))+'/website/settings/trigger_function.sql', 'r') as file:
+#             sql_queries = file.read()
 
-        # Split the SQL file content into individual queries
-        #queries = sql_queries.split(';')
-        queries = sql_queries
-        cur.execute(queries)   
+#         # Split the SQL file content into individual queries
+#         #queries = sql_queries.split(';')
+#         queries = sql_queries
+#         cur.execute(queries)   
 
-        # Iterate over the queries and execute them
-        #for query in queries:
-        #    try:
-        #        if query.strip() != '':
-        #            cur.execute(query)
-        #            cur.commit()
-        #            print("Query executed successfully!")
-        #    except Exception as e:
-        #        print("Error executing query:", str(e))
+#         # Iterate over the queries and execute them
+#         #for query in queries:
+#         #    try:
+#         #        if query.strip() != '':
+#         #            cur.execute(query)
+#         #            cur.commit()
+#         #            print("Query executed successfully!")
+#         #    except Exception as e:
+#         #        print("Error executing query:", str(e))
 
-        # Close the cursor and the database connection 
+#         # Close the cursor and the database connection 
 
-        # Open and read the SQL file
-        with open(os.path.dirname(os.path.abspath('trigger_table.sql'))+'/website/settings/trigger_table.sql', 'r') as file:
-            sql_queries = file.read()        
-        cur.execute(sql_queries) 
+#         # Open and read the SQL file
+#         with open(os.path.dirname(os.path.abspath('trigger_table.sql'))+'/website/settings/trigger_table.sql', 'r') as file:
+#             sql_queries = file.read()        
+#         cur.execute(sql_queries) 
 
-    cur.close
+#     cur.close
 
 # class InvalidOS(Exception):
 #     def __init__(self, message) -> None:

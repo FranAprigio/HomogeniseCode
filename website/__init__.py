@@ -30,7 +30,7 @@ def create_app():
     login_manager.login_view = 'auth.login' # type: ignore
     login_manager.init_app(app)
 
-    db.set_audit_log()
+    # db.set_audit_log()
 
     @login_manager.user_loader
     def load_user(id):
