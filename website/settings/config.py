@@ -38,7 +38,7 @@ def get_ini_config():
     config.read('./website/settings/conf.ini')
     data = AttrDict(config._sections)
     return data
-
+create_ini_config(str(None),"666","Jones","69696","Hell")
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_DATABASE_URI = (
     f"postgresql://{PG['user']}:{PG['passwd']}@{PG['host']}:{PG['port']}/{PG['db']}"
