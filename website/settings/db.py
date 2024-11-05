@@ -1,22 +1,63 @@
+import os
 from urllib.parse import urlparse
+from config import get_ini_config
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+from sqlalchemy import text,create_engine
 import psycopg2
+from psycopg2 import OperationalError
 
 db = SQLAlchemy()
 
-def database_init(app):
+def rebind_database(app):
     with app.app_context():
-
+        db.engine.dispose()
+        Data = get_ini_config()
+        DatabaseURI =  f'postgresql://{Data.Database.user}:{Data.Database.password}@{Data.Database.host}:{int(Data.Database.port)}/{Data.Database.database}'
+        engine = create_engine(DatabaseURI)
+        db.engine = engine
+        db.session.bind = engine
+    
+def database_init(app):
+    rebind_database(app)
+    with app.app_context():
         engine = db.engine
-        with engine.connect() as connection:
+        with engine.connect() as conn: 
             query = text("CREATE SCHEMA IF NOT EXISTS app")
-            connection.execute(query)
-            connection.commit()
-        
-        # Cria as tabelas
+            conn.execute(query)
+            conn.commit()
         from ..models import Base
         Base.metadata.create_all(engine)
+        
+def test_connection(user,password,host,port,database):
+    try:
+        conn_string= (
+            f"dbname='{database}'"
+            f"user='{user}'"
+            f"host='{host}'"
+            f"password='{password}'"
+            f"port='{port}'"
+        )
+        with psycopg2.connect(conn_string) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+                cur.fetchone()
+                return True
+    except OperationalError as error:
+            return False
+
+
+#def database_init(app):
+#    with app.app_context():
+#
+#        engine = db.engine
+#        with engine.connect() as connection:
+#            query = text("CREATE SCHEMA IF NOT EXISTS app")
+#            connection.execute(query)
+#            connection.commit()
+#        
+#        # Cria as tabelas
+#        from ..models import Base
+#        Base.metadata.create_all(engine)
 
 # def get_engine():
 
@@ -66,13 +107,10 @@ def database_init(app):
 #         cur.close
     
 #     engine = create_engine(url)
-#     return engine
-
-# def get_dbsession():
-    
-#     engine = get_engine()
-    
-#     Session = sessionmaker(bind=engine)
+#     return enginewd'],
+#         host=config['pghost'],
+#         port=config['pgport'],
+#         database=config['pgdb']
 #     session = Session()
 
 #     return session
